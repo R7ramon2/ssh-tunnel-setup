@@ -3,6 +3,7 @@
 #  tunnel-setup.sh — SSH Reverse Tunnel Configurator
 #  Compatível com: Linux (Debian/Ubuntu/Arch/Alpine), macOS, Raspberry Pi OS
 #  Autor: Ramon Alcântara
+#  Linkedin: https://www.linkedin.com/in/ramon-ranieri-276566150/
 # =============================================================================
 
 set -euo pipefail
@@ -70,10 +71,17 @@ ask() {
 ask_yn() {
   local prompt="$1" default="${2:-n}" var_name="$3"
   local hint; [ "$default" = "y" ] && hint="S/n" || hint="s/N"
-  printf "  ${WHITE}%s ${CYAN}[%s]${RESET}: " "$prompt" "$hint"
-  read -r input
-  input=$(echo "${input:-$default}" | tr '[:upper:]' '[:lower:]')
-  [[ "$input" =~ ^(s|y|sim|yes)$ ]] && eval "$var_name=true" || eval "$var_name=false"
+  local input
+  while true; do
+    printf "  ${WHITE}%s ${CYAN}[%s]${RESET}: " "$prompt" "$hint"
+    read -r input || input=""
+    input=$(echo "${input:-$default}" | tr '[:upper:]' '[:lower:]')
+    case "$input" in
+      s|y|sim|yes) eval "$var_name=true";  return ;;
+      n|no|nao|não) eval "$var_name=false"; return ;;
+      *) warn "Resposta inválida: '${input}'. Digite ${BOLD}s${RESET} para sim ou ${BOLD}n${RESET} para não." ;;
+    esac
+  done
 }
 
 # ─── Detectar sistema operacional ─────────────────────────────────────────────
